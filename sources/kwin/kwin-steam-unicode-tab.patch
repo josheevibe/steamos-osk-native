@@ -1,0 +1,15 @@
+--- a/src/plugins/eis/eisdevice.cpp
++++ b/src/plugins/eis/eisdevice.cpp
+@@ -157,6 +157,12 @@
+ 
+ void EisDevice::sendKeySym(xkb_keysym_t keySym, KeyboardKeyState keyState)
+ {
++    // Steam's OSK sends Tab as the Unicode control-character alias.
++    // GTK key bindings require the canonical XKB Tab keysym.
++    if (keySym == 0x01000009) {
++        keySym = XKB_KEY_Tab;
++    }
++
+     std::optional<Xkb::KeyCode> keyCode = input()->keyboard()->xkb()->keycodeFromKeysym(keySym);
+     if (keyCode) {
+         // grab the current modifier state, cache it, send our key with our own modifiers at a known state, then reset back

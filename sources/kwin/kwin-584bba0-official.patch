@@ -1,0 +1,128 @@
+From 584bba048bd4c52c893a2fc601c39f2fbfe27032 Mon Sep 17 00:00:00 2001
+From: Manolis Tzanidakis <mtzanidakis@gmail.com>
+Date: Fri, 14 Aug 2026 17:03:49 +0300
+Subject: [PATCH] xkb: bind scratch keymaps to a keycode chromium recognises
+
+A keysym that the active layout group cannot produce is delivered to the
+client on a throwaway keycode carrying a one-key scratch keymap, and all
+three callers picked 247 (KEY_RFKILL) for it.
+
+Chromium translates evdev codes into its own DomCode enumeration through a
+fixed table, ui/events/keycodes/dom/dom_code_data.inc, and 247 has no row
+there. WaylandKeyboard::DispatchKey then does
+
+    DomCode dom_code = KeycodeConverter::EvdevCodeToDomCode(key);
+    if (dom_code == ui::DomCode::NONE)
+      return;
+
+so the key is discarded before the keymap is ever consulted. Every chromium
+and electron application loses it -- chrome, vscode, slack, discord, signal
+-- while qt and gtk clients are unaffected, since they resolve the keycode
+through xkbcommon directly.
+
+On a us,gr layout with us active this means a dictation or remote desktop
+tool can type latin text into a browser but not greek, and the virtual
+keyboard has the same hole through InputMethod::forwardKeySym. It is not
+about any particular script: EuroSign is lost the same way, and with gr
+active latin is.
+
+The character comes from the keysym rather than from the DomCode --
+XkbKeyboardLayoutEngine::Lookup ends in DomKey::FromCharacter(character) --
+so any keycode chromium knows produces the right result. KEY_F24 is in its
+table, is not part of the pc+us include the scratch keymap builds on, and is
+rarely bound as a shortcut.
+
+Verified on 6.7.4 with a us,gr layout: wev shows the keysym arriving
+correctly on keycode 247 while a keydown logger in chrome 151 records no
+event at all, and with the change every character arrives, the out-of-group
+ones reported as code F24.
+---
+ src/backends/fakeinput/fakeinputbackend.cpp |  5 ++---
+ src/inputmethod.cpp                         |  7 +++----
+ src/plugins/eis/eisdevice.cpp               |  5 ++---
+ src/xkb.h                                   | 12 ++++++++++++
+ 4 files changed, 19 insertions(+), 10 deletions(-)
+
+diff --git a/src/backends/fakeinput/fakeinputbackend.cpp b/src/backends/fakeinput/fakeinputbackend.cpp
+index 8910b7e26e7..05c3c0262f3 100644
+--- a/src/backends/fakeinput/fakeinputbackend.cpp
++++ b/src/backends/fakeinput/fakeinputbackend.cpp
+@@ -339,12 +339,11 @@ void FakeInputBackendPrivate::org_kde_kwin_fake_input_keyboard_keysym(Resource *
+     // clients don't seem to like having a keymap change whilst a key is pressed
+     // for now send a fake release with every press and ignore other releases. We can make the keymap resetting more lazy if it's an issue IRL
+     if (nativeState == KeyboardKeyState::Pressed) {
+-        static const uint unmappedKeyCode = 247;
+-        bool keymapUpdated = input()->keyboard()->xkb()->updateToKeymapForKeySym(unmappedKeyCode, keySym);
++        bool keymapUpdated = input()->keyboard()->xkb()->updateToKeymapForKeySym(Xkb::scratchKeycode, keySym);
+         if (!keymapUpdated) {
+             return;
+         }
+-        sendKey(device, unmappedKeyCode, KeyboardKeyState::Pressed);
++        sendKey(device, Xkb::scratchKeycode, KeyboardKeyState::Pressed);
+ 
+         for (quint32 key : std::as_const(device->pressedKeys)) {
+             sendKey(device, key, KeyboardKeyState::Released);
+diff --git a/src/inputmethod.cpp b/src/inputmethod.cpp
+index 1ec6ced6bf9..8a119ceeafa 100644
+--- a/src/inputmethod.cpp
++++ b/src/inputmethod.cpp
+@@ -545,14 +545,13 @@ void InputMethod::forwardKeySym(int keySym)
+     std::optional<Xkb::KeyCode> keyCode = input()->keyboard()->xkb()->keycodeFromKeysym(keySym);
+     if (!keyCode) {
+         qCWarning(KWIN_VIRTUALKEYBOARD) << "Could not map keysym " << keySym << "to keycode. Trying custom keymap";
+-        static const uint unmappedKeyCode = 247;
+-        auto temporaryKeymap = input()->keyboard()->xkb()->keymapContentsForKeysym(unmappedKeyCode, keySym);
++        auto temporaryKeymap = input()->keyboard()->xkb()->keymapContentsForKeysym(Xkb::scratchKeycode, keySym);
+         if (temporaryKeymap.isEmpty()) {
+             return;
+         }
+         waylandServer()->seat()->keyboard()->setKeymap(temporaryKeymap);
+-        waylandServer()->seat()->notifyKeyboardKey(unmappedKeyCode, KeyboardKeyState::Pressed, waylandServer()->display()->nextSerial());
+-        waylandServer()->seat()->notifyKeyboardKey(unmappedKeyCode, KeyboardKeyState::Released, waylandServer()->display()->nextSerial());
++        waylandServer()->seat()->notifyKeyboardKey(Xkb::scratchKeycode, KeyboardKeyState::Pressed, waylandServer()->display()->nextSerial());
++        waylandServer()->seat()->notifyKeyboardKey(Xkb::scratchKeycode, KeyboardKeyState::Released, waylandServer()->display()->nextSerial());
+         waylandServer()->seat()->keyboard()->setKeymap(input()->keyboard()->xkb()->keymapContents());
+     } else {
+         waylandServer()->seat()->notifyKeyboardModifiers(keyCode->modifiers, 0, 0, input()->keyboard()->xkb()->currentLayout());
+diff --git a/src/plugins/eis/eisdevice.cpp b/src/plugins/eis/eisdevice.cpp
+index 5df0acdec1e..63a213ee8f6 100644
+--- a/src/plugins/eis/eisdevice.cpp
++++ b/src/plugins/eis/eisdevice.cpp
+@@ -198,12 +198,11 @@ void EisDevice::sendKeySym(xkb_keysym_t keySym, KeyboardKeyState keyState)
+     // clients don't seem to like having a keymap change whilst a key is pressed
+     // for now send a fake release with every press and ignore other releases. We can make the keymap resetting more lazy if it's an issue IRL
+     if (keyState == KeyboardKeyState::Pressed) {
+-        static const uint unmappedKeyCode = 247;
+-        bool keymapUpdated = input()->keyboard()->xkb()->updateToKeymapForKeySym(unmappedKeyCode, keySym);
++        bool keymapUpdated = input()->keyboard()->xkb()->updateToKeymapForKeySym(Xkb::scratchKeycode, keySym);
+         if (!keymapUpdated) {
+             return;
+         }
+-        sendKey(unmappedKeyCode, KeyboardKeyState::Pressed);
++        sendKey(Xkb::scratchKeycode, KeyboardKeyState::Pressed);
+ 
+         for (quint32 key : std::as_const(pressedKeys)) {
+             sendKey(key, KeyboardKeyState::Released);
+diff --git a/src/xkb.h b/src/xkb.h
+index 3b892ed5cc4..6db9f5650e7 100644
+--- a/src/xkb.h
++++ b/src/xkb.h
+@@ -140,6 +140,18 @@ class KWIN_EXPORT Xkb : public QObject
+      */
+     static QList<xkb_keysym_t> keysymsFromQtKey(QKeyCombination keyQt);
+ 
++    /**
++     * The keycode callers should pass to the two functions below.
++     *
++     * As far as xkbcommon is concerned any keycode would do, since the scratch
++     * keymap defines exactly one key. It matters to clients though: chromium
++     * translates evdev codes into its own DomCode enumeration through a fixed
++     * table and discards key events whose code is missing from that table, so
++     * this has to be a code that table knows or every chromium and electron
++     * application silently loses the key.
++     */
++    static constexpr uint scratchKeycode = 194; // KEY_F24
++
+     /**
+      *  Create a temporary keymap with one custom keysym bound to a given keycode.
+      *  The underlying keymap used by Xkb is unchanged
