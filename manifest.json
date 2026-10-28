@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "bundle": "steamos-osk-native-1.0",
+  "packages": {
+    "kwin": {
+      "base": "6.7.3-1.7",
+      "fixed": "6.7.3-1.7.2",
+      "versions": {
+        "6.7.3-1.7": {
+          "file": "packages/kwin-6.7.3-1.7-x86_64.pkg.tar.zst",
+          "sha256": "14f6c5b9cd9f5b90c303b49bfe6864e59b52e886404b807824bf91ce68277320"
+        },
+        "6.7.3-1.7.2": {
+          "file": "packages/kwin-6.7.3-1.7.2-x86_64.pkg.tar.zst",
+          "sha256": "e18466b25b3557a696aee4c3b8e347ea4b5274c2b7ca1b7f749f3005f119a8e8"
+        }
+      },
+      "installed_files": {
+        "/usr/lib/libkwin.so.6.7.3": "bd6ac9c3dcc63538169bf70b730dacc5df94f12a9df17dd66734abab0c73208b",
+        "/usr/lib/qt6/plugins/kwin/plugins/eis.so": "ca06a1639e23d0997868647a2d1ffb432a75d9cddc5f4666bf246b5d8fc0ec19"
+      },
+      "base_files": {
+        "/usr/lib/libkwin.so.6.7.3": "01a8fe3b43927cc064609ba8f0198acc50b052a7e9b6e319ced61fd9fe592bed",
+        "/usr/lib/qt6/plugins/kwin/plugins/eis.so": "2049d0cb17515166f53b938f44bada17cb153385512f71273740951e512f45f2"
+      }
+    },
+    "xorg-xwayland": {
+      "base": "24.1.14-1.1",
+      "fixed": "24.1.14-1.1.1",
+      "versions": {
+        "24.1.14-1.1": {
+          "file": "packages/xorg-xwayland-24.1.14-1.1-x86_64.pkg.tar.zst",
+          "sha256": "1fc4b3b8022f768b7edd7426c7f88f2537711fa1d5ca3c41569357bac56faf48"
+        },
+        "24.1.14-1.1.1": {
+          "file": "packages/xorg-xwayland-24.1.14-1.1.1-x86_64.pkg.tar.zst",
+          "sha256": "3d85c62cb457be65a1252c5d098637569b9f86bf2e90e1a5b7e8255a2ad7fd22"
+        }
+      },
+      "installed_files": {
+        "/usr/bin/Xwayland": "3c3cec6bc978f98c11d782e4a9c4c9dc330915e33618d452417eae4d896f8d9b"
+      },
+      "base_files": {
+        "/usr/bin/Xwayland": "7a75c5932450442b07d67632b9c06303c24042e8a0d01199d951b4796c203e8f"
+      }
+    }
+  }
+}

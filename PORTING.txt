@@ -1,0 +1,75 @@
+다른 기기·SteamOS 버전·배포판으로 이식하기
+
+기기 이름보다 소프트웨어 입력 경로와 ABI가 중요하다.
+동일 SteamOS 빌드/라이브러리 환경이면 manage.py check로 동봉 바이너리의
+설치 가능 조건을 검사할 수 있다. 다른 환경에는 아래 소스 기반 방법을 사용한다.
+
+1. 대상에서 확인
+   uname -m
+   cat /etc/os-release
+   pacman -Q kwin xorg-xwayland libei qt6-base wayland libxkbcommon
+   echo "$XDG_SESSION_TYPE"
+   Steam OSK가 EIS text keysym 경로를 쓰는지, 대상 앱이 Wayland인지 확인한다.
+   현재 패키지 버전과 패치 목록을 확보하고 배포판 소스 패키지로 시작한다.
+
+2. 정확한 현재 수정 소스 재구성
+   python3 prepare-sources.py /새로운/쓰기가능한/소스폴더
+   출력 폴더는 존재하지 않아야 한다. root 권한은 필요 없다.
+   동봉 원본 압축파일 및 패치 SHA256을 확인하고 Valve 패치부터 순서대로 적용한다.
+   Valve의 0006 패치는 공식 6.7.3 소스에도 문맥 fuzz가 필요하다.
+   적용 후 변경된 29개 파일의 해시를 실제 설치본 빌드 소스와 전부 대조하므로
+   단순히 patch 명령이 성공했는지에만 의존하지 않는다.
+
+3. 변경점과 의존성
+   KWin 공식 수정:
+   https://github.com/KDE/kwin/commit/584bba048bd4c52c893a2fc601c39f2fbfe27032
+   scratch keycode를 Chromium이 인식하는 F24로 옮긴다. 이미 포함된 버전은 중복 적용하지 않는다.
+   kwin-steam-unicode-tab.patch: EIS에서 Unicode U+0009를 표준 XKB Tab으로 정규화한다.
+   xwayland-native-unicode.patch: 명시적으로 바뀐 X11 키맵을 추적하고 큐에 문자값을 저장한다.
+   정상 키의 master 키맵 사용은 유지하여 다른 키보드 배열을 보존한다.
+
+   이 XWayland 수정은 Valve의 0003-LibEi-keysyms.patch 위에 적용된다.
+   KWin도 Valve의 0011-Eis-Support-1.6-additions.patch를 전제로 한다.
+   Valve PKGBUILD가 명시하듯 libei에도 해당 text 기능이 필요하다.
+   다른 배포판에 같은 이름/버전의 libei가 있다는 이유만으로 기능을 가정하면 안 된다.
+   최신 배포판에서는 동등한 기능이 이미 통합됐는지 소스를 확인하고 패치를 조정한다.
+
+4. 빌드
+   sources/*/PKGBUILD는 Valve 원본 레시피이다.
+   PKGBUILD.patched는 동봉 로컬 소스/패치를 참조하도록 만든 추가 레시피이다.
+   별도 깨끗한 빌드 환경에서 해당 sources 하위 디렉터리를 복사하고,
+   PKGBUILD.patched를 PKGBUILD로 바꾼 뒤 makepkg로 패키지를 빌드한다.
+   대상 SteamOS와 맞는 개발 헤더/컴파일러/패치된 libei를 사용해야 한다.
+   휴대용 게임기의 실행 중인 루트에 개발 패키지를 무작정 설치하지 않는다.
+
+   KWin 기본 빌드 구성:
+     cmake -G Ninja -S kwin-6.7.3 -B kwin-build -DCMAKE_BUILD_TYPE=Release \
+       -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBEXECDIR=lib -DBUILD_TESTING=OFF
+     cmake --build kwin-build
+   XWayland 구성은 동봉 레시피의 arch-meson 및 배포판 기본 컴파일 보안 옵션을 따른다.
+   ipv6/dri3/glamor/libdecor/xcsecurity=true, xvfb/xdmcp=false,
+   xkb_dir=/usr/share/X11/xkb, xkb_output_dir=/var/lib/xkb.
+   패키징 과정에서 RPATH와 KWin 실행 파일의 capability를 점검한다.
+
+   동봉 바이너리는 원본 Valve 패키지의 다른 파일을 유지하고 아래 3개만 교체했다.
+     /usr/lib/libkwin.so.6.7.3
+     /usr/lib/qt6/plugins/kwin/plugins/eis.so
+     /usr/bin/Xwayland
+   위 레시피는 전체 패키지를 다시 빌드하는 방식이므로 동봉 바이너리와 비트 단위로
+   같은 결과를 보장하지 않는다. 새 빌드는 별도 설치 파일/의존성 검증이 필요하다.
+   archive-rebuild.py는 같은 ABI에서 위 3개만 교체하는 패키징 작업을 재현하는 도구이다.
+
+5. 검증 후에만 해당 환경용 배포본 생성
+   먼저 별도 Wayland 세션에서 실제 패키지 안의 바이너리를 시험한다.
+   1000자 반복, 새 EIS 연결 첫 글자, 삽입/삭제/Tab, 영문 및 다른 키보드 배열을 검사한다.
+   실제 Steam+X 터치 입력으로 주소창과 본문 전체 문자열을 원문과 비교한다.
+   GTK/Qt 필드 이동 및 시작 메뉴와 가상키보드 레이어도 확인한다.
+   게임 모드를 지원하려면 게임 모드에서 별도로 검증한다.
+   시험 후 해당 OS/라이브러리/패키지 해시를 기록해 새로운 버전의 묶음을 만든다.
+   검증 없이 기존 manage.py의 버전 검사만 완화해서 배포하지 않는다.
+
+유지보수 방향
+장기적인 범용 적용은 KWin/XWayland/Valve 쪽에 수정이 정식 반영되어
+SteamOS 기본 업데이트로 배포되는 형태가 가장 관리하기 쉽다.
+공식 KWin 백포트와 이번 로컬 Tab/XWayland 수정을 구분해 제안해야 한다.
+이번 작업에서는 외부 이슈 작성이나 패치 제출을 하지 않았다.
