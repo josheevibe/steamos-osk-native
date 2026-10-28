@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="SteamOS Steam+X 가상키보드 한글 입력 수정. 지원 환경, 설치·복원 방법, 소스와 검증 기록.">
+  <title>SteamOS 한글 가상키보드 · Native OSK fixes</title>
+  <style>
+    :root{color-scheme:light;--ink:#172735;--muted:#506476;--blue:#075acc;--line:#dbe4ec;--pale:#edf5ff}
+    *{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:var(--ink);font:16px/1.75 system-ui,-apple-system,"Noto Sans KR",sans-serif}
+    a{color:var(--blue);text-underline-offset:.2em}a:hover{text-decoration-thickness:2px}a:focus-visible{outline:3px solid #ec9b25;outline-offset:4px}
+    .wrap{max-width:980px;margin:auto;padding:0 28px}header{border-bottom:1px solid var(--line);background:#fff}nav{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:76px}
+    .brand{font-size:17px;font-weight:750;letter-spacing:-.02em;color:var(--ink);text-decoration:none}.links{display:flex;gap:22px;font-size:14px}
+    main{padding-bottom:80px}.hero{padding:68px 0 46px}.label{display:inline-block;background:var(--pale);border:1px solid #cddff6;border-radius:99px;color:#17549b;padding:5px 13px;font-size:13px;font-weight:650}
+    h1{font-size:clamp(32px,5.5vw,50px);line-height:1.28;letter-spacing:-.055em;margin:22px 0 20px;font-weight:800}h2{font-size:24px;letter-spacing:-.035em;margin:0 0 16px}h3{font-size:17px;margin:0 0 8px}
+    .lead{max-width:720px;font-size:18px;color:var(--muted);margin:0 0 25px}.buttons{display:flex;flex-wrap:wrap;gap:12px}.button{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:11px 19px;background:white;font-weight:650}.primary{background:var(--blue);color:white;border-color:var(--blue)}
+    .note{font-size:14px;color:var(--muted)}section{margin:28px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px}.status{border-left:4px solid #386aa1;background:var(--pale)}p{margin:0 0 16px}p:last-child{margin-bottom:0}
+    table{border-collapse:collapse;width:100%;font-size:15px}th,td{text-align:left;vertical-align:top;padding:12px 6px;border-bottom:1px solid var(--line)}th{width:28%;font-weight:650}tr:last-child>*{border-bottom:0}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.cards p{font-size:15px;color:var(--muted)}pre{background:#152536;color:#eaf3ff;padding:20px;border-radius:9px;overflow-x:auto;font-size:14px;line-height:1.8}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}ul,ol{padding-left:23px}li{margin:7px 0}.checks{display:grid;grid-template-columns:1fr 1fr;gap:12px}.check{padding:15px 18px;border:1px solid var(--line);border-radius:9px}.check strong{display:block;font-size:21px;color:#164c86}.check span{font-size:14px;color:var(--muted)}
+    footer{border-top:1px solid var(--line);padding:24px 0 35px;font-size:13px;color:var(--muted)}@media(max-width:640px){.wrap{padding:0 19px}nav{min-height:68px}.links{gap:14px}.hero{padding:42px 0 24px}section{padding:22px}.cards,.checks{grid-template-columns:1fr}th{width:32%}}
+  </style>
+</head>
+<body>
+<header><nav class="wrap" aria-label="주 메뉴"><a class="brand" href="./">SteamOS · Native OSK</a><div class="links"><a href="#install">설치</a><a href="https://github.com/josheevibe/steamos-osk-native">GitHub ↗</a></div></nav></header>
+<main class="wrap">
+  <div class="hero">
+    <span class="label">시험 배포 · v1.0.0-preview.1</span>
+    <h1>Steam+X 한글 입력,<br>원래 입력 경로에서 수정합니다.</h1>
+    <p class="lead">가상키보드에서 입력한 한글이 빠지거나 Tab이 제대로 전달되지 않는 문제를 KWin과 XWayland에서 수정했습니다. Steam 가상키보드와 터치 방식은 유지합니다.</p>
+    <div class="buttons"><a class="button primary" href="https://github.com/josheevibe/steamos-osk-native/releases/tag/v1.0.0-preview.1">배포 파일 받기</a><a class="button" href="https://github.com/josheevibe/steamos-osk-native/blob/main/README.txt">설치·복원 설명서</a></div>
+    <p class="note" style="margin-top:16px">원본·수정 패키지, 설치·복원 도구, 전체 소스 포함 · 약 40MB</p>
+  </div>
+  <section class="status" aria-labelledby="scope"><h2 id="scope">설치 전에 지원 환경을 확인하세요</h2><p>Lenovo Legion Go S의 아래 환경에서 검증했습니다. <strong>다른 기기와 게임 모드는 아직 검증하지 않았습니다.</strong> 설치기는 버전이 다른 환경에서 중단합니다. 처음부터 한글 입력기를 설정하는 도구는 아닙니다.</p><table><tbody><tr><th scope="row">운영체제</th><td>SteamOS 3.9.5 · build 20261023.100 · x86_64</td></tr><tr><th scope="row">데스크톱</th><td>KDE Wayland</td></tr><tr><th scope="row">KWin</th><td>6.7.3-1.7 → 6.7.3-1.7.2</td></tr><tr><th scope="row">XWayland</th><td>24.1.14-1.1 → 24.1.14-1.1.1</td></tr><tr><th scope="row">라이브러리</th><td><a href="https://github.com/josheevibe/steamos-osk-native/blob/main/tested-environment.json">검증 환경 목록</a>과 일치해야 합니다.</td></tr></tbody></table></section>
+  <section><h2>무엇을 수정했나요?</h2><div class="cards"><div><h3>한글 전달</h3><p>Chromium이 한글 키를 버리는 문제와 빠른 입력에서 임시 문자 매핑이 덮이는 문제를 수정했습니다.</p></div><div><h3>Tab 이동</h3><p>가상키보드의 Tab을 표준 키로 전달해 GTK·Qt 입력칸 사이를 이동하도록 했습니다.</p></div><div><h3>키보드 레이어</h3><p>별도 창 규칙으로 입력칸의 포커스를 유지하고 시작 메뉴 위에 키보드가 표시되도록 했습니다.</p></div></div></section>
+  <section id="install"><h2>다운로드 후 먼저 검사하세요</h2><p>Releases에서 아래 압축파일과 SHA256 파일을 함께 받습니다. GitHub의 자동 생성 <code>Source code</code>에는 설치용 패키지가 들어 있지 않습니다.</p><pre><code>sha256sum -c steamos-osk-native-1.0.tar.gz.sha256
+tar -xzf steamos-osk-native-1.0.tar.gz
+cd steamos-osk-native-1.0
+sha256sum -c SHA256SUMS
+python3 manage.py check</code></pre><p>검사는 시스템을 바꾸지 않습니다. 호환성을 통과한 기기에 적용할 때만 다음 명령을 실행합니다.</p><pre><code>sudo python3 manage.py install
+python3 window-rule.py install</code></pre><p><strong>작업을 저장하고 직접 재시작한 뒤 데스크톱 모드에서 시험하세요.</strong> 설치기는 자동 재부팅이나 게임 모드 전환을 하지 않습니다. 이미 수정이 적용된 원래 기기는 재설치할 필요가 없습니다.</p></section>
+  <section><h2>확인한 결과</h2><div class="checks"><div class="check"><strong>1,000자 × 3회</strong><span>격리 Wayland 환경에서 원문 전체 일치</span></div><div class="check"><strong>주소창 335자 · 본문 111자</strong><span>실제 Steam OSK 터치 입력으로 전체 일치</span></div><div class="check"><strong>편집 · Tab · GTK · Qt</strong><span>삭제·재입력과 다음 필드 이동 확인</span></div><div class="check"><strong>OSK 레이어 9 &gt; 메뉴 3</strong><span>실제 데스크톱에서 메뉴 위 표시 확인</span></div></div><p class="note" style="margin-top:18px">배포 도구의 모의 시험 10개와 현재 기기의 읽기 전용 검사를 통과했습니다. 새 배포 도구로 실제 재설치하는 시험은 하지 않았습니다. <a href="https://github.com/josheevibe/steamos-osk-native/tree/main/evidence">검증 기록 보기</a></p></section>
+  <section><h2>남아 있는 제한</h2><ul><li>강제 X11 Edge 경로의 Unicode 입력 실패는 미해결입니다.</li><li>Edge 복수 맞춤법 사전 문제 때문에 실기 검증은 한국어 사전만 활성화한 상태에서 했습니다. 설치기가 사전 설정을 바꾸지는 않습니다.</li><li>주소창 첫 음절 교체 시 검색어가 잠깐 비면서 제안 팝업이 짧게 숨을 수 있습니다.</li><li>SteamOS 업데이트 후에는 수정 포함 여부와 호환성을 다시 확인해야 합니다.</li></ul></section>
+  <section><h2>복원과 다른 환경으로의 이식</h2><p>이 배포용 설치기로 설치한 기기는 다음 명령으로 이전 패키지와 창 규칙을 복원합니다.</p><pre><code>python3 window-rule.py remove
+sudo python3 manage.py rollback</code></pre><p>복원 후에도 직접 재시작합니다. OS 버전이 바뀌면 과거 패키지로의 복원은 차단됩니다. 다른 OS·라이브러리 조합은 <a href="https://github.com/josheevibe/steamos-osk-native/blob/main/PORTING.txt">소스 이식 안내</a>에 따라 재빌드하고 검증해야 합니다.</p></section>
+</main>
+<footer><div class="wrap">비공식 로컬 수정 프로젝트 · Valve, KDE, X.Org의 공식 배포판이 아닙니다.<br><a href="https://github.com/josheevibe/steamos-osk-native">소스 저장소</a> · <a href="https://github.com/josheevibe/steamos-osk-native/blob/main/LICENSES.txt">라이선스</a> · 검증 기록: 2026-10-28</div></footer>
+</body>
+</html>
