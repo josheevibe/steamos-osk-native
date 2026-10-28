@@ -1,0 +1,8 @@
+2026-10-28
+Bundle safety tests: 10 passed (mock system commands).
+Exact source reconstruction: all 29 touched files match actual build sources.
+Live read-only check on original SteamOS device: compatible; installed runtime file hashes match.
+Window rule read-only status: matches native focus/overlay rule.
+No package reinstallation, logout, reboot, input injection or user setting change during bundle preparation.
+Other hardware has not been tested.
+Archive rebuilding helper: created temporary KWin and XWayland packages using installed fixed binaries; all other payload bytes and archive attributes matched original packages. No test package was installed.

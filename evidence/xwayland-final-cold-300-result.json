@@ -1,0 +1,27 @@
+{
+  "results": [
+    {
+      "round": 0,
+      "delay": 0.001,
+      "matches": true,
+      "expectedLength": 300,
+      "actualLength": 300
+    }
+  ],
+  "editing": {
+    "matches": true,
+    "state": {
+      "active": "second",
+      "fields": [
+        {
+          "id": "first",
+          "value": "한글 abc1간2"
+        },
+        {
+          "id": "second",
+          "value": "탭 성공"
+        }
+      ]
+    }
+  }
+}

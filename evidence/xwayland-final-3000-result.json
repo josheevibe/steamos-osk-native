@@ -1,0 +1,41 @@
+{
+  "results": [
+    {
+      "round": 0,
+      "delay": 0.002,
+      "matches": true,
+      "expectedLength": 1000,
+      "actualLength": 1000
+    },
+    {
+      "round": 1,
+      "delay": 0.005,
+      "matches": true,
+      "expectedLength": 1000,
+      "actualLength": 1000
+    },
+    {
+      "round": 2,
+      "delay": 0.001,
+      "matches": true,
+      "expectedLength": 1000,
+      "actualLength": 1000
+    }
+  ],
+  "editing": {
+    "matches": true,
+    "state": {
+      "active": "second",
+      "fields": [
+        {
+          "id": "first",
+          "value": "한글 abc1간2"
+        },
+        {
+          "id": "second",
+          "value": "탭 성공"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "nativeWaylandChecksPassed": true,
+  "tests": {
+    "postfix-omnibox-335-result.json": {
+      "expectedLength": 335,
+      "actualLength": 335,
+      "matches": true
+    },
+    "postfix-page-111-result.json": {
+      "matches": true,
+      "expectedLength": 111,
+      "actualLength": 111,
+      "active": "first"
+    },
+    "postfix-edit-tab-result.json": {
+      "matches": true,
+      "firstLength": 111,
+      "second": "한글 123",
+      "active": "second"
+    },
+    "postfix-gtk-result.json": {
+      "matches": true,
+      "first": "한글 ",
+      "second": "가 1",
+      "canonicalTab": true
+    },
+    "postfix-qt-result.json": {
+      "matches": true,
+      "first": "한글 ",
+      "second": "가 1",
+      "secondFocused": true
+    }
+  },
+  "keyboardLayer": 9,
+  "menuLayer": 3,
+  "installedState": {
+    "time": "2026-10-28T14:05:19.722695+09:00",
+    "packages": "kwin 6.7.3-1.7.2\nxorg-xwayland 24.1.14-1.1.1",
+    "readonly": "enabled",
+    "kwinCapability": "/usr/bin/kwin_wayland cap_sys_nice=ep",
+    "steamUiSHA256": "692083495994d2b2cf686effd89c11fa987aefa45787cbfa212627c37eda9c7a"
+  },
+  "limitations": [
+    "Forced X11 Edge Unicode remains unresolved; no X11 rerouting was installed.",
+    "Edge spellcheck uses Korean only; English spellcheck remains disabled.",
+    "A brief initial-syllable popup hide was observed previously."
+  ],
+  "note": "Original device validation. Other devices and binary bundle reinstall were not tested."
+}
