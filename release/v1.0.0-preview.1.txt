@@ -1,0 +1,20 @@
+SteamOS native OSK fixes — v1.0.0-preview.1
+
+Steam+X 가상키보드의 Unicode 전달·Tab·창 레이어 처리를 위한 시험 배포판입니다.
+SteamOS 3.9.5 build 20261023.100 / x86_64 / KDE Wayland 데스크톱에서 검증했습니다.
+기기: Lenovo Legion Go S. 다른 기기, 게임 모드, 강제 X11 Edge는 검증/해결 범위에 포함되지 않습니다.
+
+다운로드할 파일:
+- steamos-osk-native-1.0.tar.gz (원본/수정 패키지, 설치·복원 도구, 전체 소스 및 패치)
+- steamos-osk-native-1.0.tar.gz.sha256 (압축파일 SHA256)
+
+SHA256: fff1ad1d733ee8e5e6a4fc55836fa8656c66f1b842ce36e77ec3c0bbce77550f
+
+압축을 풀고 python3 manage.py check부터 실행하세요.
+검사 통과는 바이너리 환경 일치라는 의미이며 다른 기기의 입력 시험을 대신하지 않습니다.
+설치·복원 방법과 남은 제한은 저장소 README를 확인하세요.
+GitHub 자동 생성 Source code 파일에는 설치용 바이너리 패키지가 들어 있지 않습니다.
+
+검증: 격리 Wayland 1000자 × 3회, 새 연결 300자, 실제 Edge 주소창 335자/본문 111자 일치.
+GTK/Qt Tab·편집·메뉴 레이어 확인. 배포 도구 모의 시험 10개 통과.
+새 배포 도구로 실제 재설치하지 않았으며 원래 기기에서 읽기 전용 호환성 검사까지 수행했습니다.
