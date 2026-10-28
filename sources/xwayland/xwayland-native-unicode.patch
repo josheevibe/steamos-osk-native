@@ -1,0 +1,123 @@
+--- a/include/inputstr.h
++++ b/include/inputstr.h
+@@ -258,6 +258,8 @@
+     CARD8 postdown[DOWN_LENGTH];
+     int modifierKeyCount[8];
+     struct _XkbSrvInfo *xkbInfo;
++    /* Core client mappings may differ from a later compositor keymap. */
++    CARD8 clientKeymap[MAP_LENGTH];
+ } KeyClassRec, *KeyClassPtr;
+ 
+ typedef struct _ScrollInfo {
+--- a/xkb/xkbUtils.c
++++ b/xkb/xkbUtils.c
+@@ -562,6 +562,8 @@
+         XkbSetCauseCoreReq(&cause, X_ChangeKeyboardMapping, client);
+ 
+         XkbUpdateKeyTypesFromCore(kbd, map, first_key, num_keys, &changes);
++        if (client != serverClient)
++            memset(kbd->key->clientKeymap + first_key, 1, num_keys);
+         XkbUpdateActions(kbd, first_key, num_keys, &changes, &check, &cause);
+ 
+         if (check)
+@@ -2051,8 +2053,10 @@
+         nkn.changed |= XkbNKN_GeometryMask;
+ 
+     ret = XkbCopyKeymap(dst->key->xkbInfo->desc, desc);
+-    if (ret)
++    if (ret) {
++        memset(dst->key->clientKeymap, 0, sizeof(dst->key->clientKeymap));
+         XkbSendNewKeyboardNotify(dst, &nkn);
++    }
+ 
+     return ret;
+ }
+--- a/hw/xwayland/xwayland-xtest.c
++++ b/hw/xwayland/xwayland-xtest.c
+@@ -63,6 +63,7 @@
+     int detail;
+     int flags;
+     ValuatorMask mask;
++    KeySym keysym;
+     struct xorg_list link;
+ };
+ 
+@@ -107,6 +108,18 @@
+     return dixLookupPrivate(&client->devPrivates, &xwl_ei_private_key);
+ }
+ 
++/* Use the source device only for keys explicitly remapped by an X11 client.
++ * The master follows compositor keymaps, including temporary text keymaps;
++ * untouched keys must continue to follow its configured keyboard layout.
++ */
++static KeySym
++xwl_xtest_keysym(DeviceIntPtr dev, int detail)
++{
++    XkbDescPtr map = dev->key->clientKeymap[detail]
++        ? dev->key->xkbInfo->desc : dev->master->key->xkbInfo->desc;
++    return XkbKeySym(map, detail, 0);
++}
++
+ static void
+ xwl_queue_emulated_event(struct xwl_ei_client *xwl_ei_client, DeviceIntPtr dev,
+                          int type, int detail, int flags, const ValuatorMask *mask)
+@@ -122,6 +135,8 @@
+     xwl_emulated_event->dev = dev;
+     xwl_emulated_event->type = type;
+     xwl_emulated_event->detail = detail;
++    if (type == KeyPress || type == KeyRelease)
++        xwl_emulated_event->keysym = xwl_xtest_keysym(dev, detail);
+     xwl_emulated_event->flags = flags;
+     valuator_mask_copy(&xwl_emulated_event->mask, mask);
+ 
+@@ -547,7 +562,7 @@
+ }
+ 
+ static bool
+-xwl_send_event_to_ei(struct xwl_ei_client *xwl_ei_client, DeviceIntPtr dev,
++xwl_send_event_to_ei(struct xwl_ei_client *xwl_ei_client, KeySym sym,
+                      int type, int detail, int flags, const ValuatorMask *mask)
+ {
+     struct ei *ei = xwl_ei_client->ei;
+@@ -607,7 +622,6 @@
+ 
+             ei_device = xwl_ei_client->ei_keyboard;
+             if (xwl_ei_client->ei_text) {
+-                int sym = XkbKeySym(dev->master->key->xkbInfo->desc, detail, 0);
+                 if (sym > 0) {
+                     ei_device_text_keysym(xwl_ei_client->ei_text, sym, type == KeyPress);
+                     ei_device_frame(xwl_ei_client->ei_text, ei_now(ei));
+@@ -671,9 +685,15 @@
+     ClientPtr client;
+     struct xwl_ei_client *xwl_ei_client;
+     bool accept = false;
++    KeySym sym = NoSymbol;
+ 
+     if (!IsXTestDevice(dev, NULL))
+         return;
++
++    if (type == KeyPress || type == KeyRelease) {
++        sym = xwl_xtest_keysym(dev, detail);
++
++    }
+ 
+     client = GetCurrentClient();
+     xwl_ei_client = get_xwl_ei_client(client);
+@@ -711,7 +731,7 @@
+     }
+ 
+     if (accept) {
+-        xwl_send_event_to_ei(xwl_ei_client, dev, type, detail, flags, mask);
++        xwl_send_event_to_ei(xwl_ei_client, sym, type, detail, flags, mask);
+     }
+     else {
+         debug_ei("Not yet connected to EIS, queueing events\n");
+@@ -729,7 +749,7 @@
+     xorg_list_for_each_entry_safe(xwl_emulated_event, next_xwl_emulated_event,
+         &xwl_ei_client->pending_emulated_events, link) {
+         sent = xwl_send_event_to_ei(xwl_ei_client,
+-                                    xwl_emulated_event->dev,
++                                    xwl_emulated_event->keysym,
+                                     xwl_emulated_event->type,
+                                     xwl_emulated_event->detail,
+                                     xwl_emulated_event->flags,
