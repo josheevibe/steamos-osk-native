@@ -1,0 +1,81 @@
+{
+  "kwin": {
+    "directory": "kwin-6.7.3",
+    "archive": "kwin-6.7.3.tar.xz",
+    "patches": [
+      "0001-Handle-WM_TAKE_FOCUS-more-gracefully.patch",
+      "0002-Load-current-brightness-from-device.patch",
+      "0006-inputmethod-Skip-input-events-from-fake-input.patch",
+      "0011-Eis-Support-1.6-additions.patch",
+      "0013-filter-bad-modes.patch",
+      "0001-workspace-turn-screens-off-before-suspend-again.patch",
+      "0002-workspace-correctly-delay-suspend.patch",
+      "0003-workspace-remove-sleep-inhibition-while-no-outputs-a.patch",
+      "kwin-584bba0-official.patch",
+      "kwin-steam-unicode-tab.patch"
+    ],
+    "sha256": {
+      "kwin-6.7.3.tar.xz": "345b45d400884cc6b00f4b3585cc056aa2780f32afe2df394d20c5a98273c559",
+      "0001-Handle-WM_TAKE_FOCUS-more-gracefully.patch": "0652cf29acf320dc767e1ff5da971e49766fce7e21cc3db859e4df49b2ebf2fd",
+      "0002-Load-current-brightness-from-device.patch": "81aabc16f054ba3cd47d0fe5d9169df17cd1f14d7dfc324786e86cbe08c84b48",
+      "0006-inputmethod-Skip-input-events-from-fake-input.patch": "bf08aae2967d3cd4202ee27004eff2feedc98163626fd98f96b7d2acae40dc38",
+      "0011-Eis-Support-1.6-additions.patch": "bf5d84b3c758a1c1a957aef21f583f2bf4eb156a9f92648b8d0abab750a76723",
+      "0013-filter-bad-modes.patch": "197ca697629f9ba747dfe80733fe191e09ada3e50e0b1856b71b5ca95c48844d",
+      "0001-workspace-turn-screens-off-before-suspend-again.patch": "1d0d5150b57c74d1d1622e6333448340e6c97011401c8e0ed725aee2a13a202c",
+      "0002-workspace-correctly-delay-suspend.patch": "ea5992dca4d81beb27bfff1307d331664b947b582bd1315968024da677b793f0",
+      "0003-workspace-remove-sleep-inhibition-while-no-outputs-a.patch": "ae91f261441a27bd48876798de14c3b25cc9a35c52d2e0f70e4c2eeb435bb778",
+      "kwin-584bba0-official.patch": "f9b6deb59e6f252e51b5e96aa506db0edfc68342d9e5127a6a5aa74da312d1b0",
+      "kwin-steam-unicode-tab.patch": "c07035e9fcc8811a5a54d97f25e503da10d8d26fb6ed44b8df382aba3c2eb334"
+    },
+    "patched_files": {
+      "autotests/integration/CMakeLists.txt": "366a3e3f16ddf3988f401e56675909c6e6ad548a19dba7d49710acf962e3ad7f",
+      "autotests/integration/kwin_wayland_test.cpp": "e3948226c2f5b399408f04c0149be5c4137819cae9e3a648f08b0801cf97f319",
+      "autotests/integration/kwin_wayland_test.h": "40ac785b1b3c1eae1b1389040db99e6fb11e0190a37c98d8fa4798aa4ab86d9f",
+      "autotests/integration/libei_test.cpp": "b395a6d95895d9f5d626bfaf2e53f5b8d682da3555769713d24632a8503593d6",
+      "src/activation.cpp": "783546a42b5849d313d9cff5327b690cfc5a6d78ce6c7de9e8409d6be16580cc",
+      "src/backends/drm/drm_connector.cpp": "513d94ba75acc815efa69d1f155e832ee5887ec938377ff03a39b71e478f77cd",
+      "src/backends/fakeinput/fakeinputbackend.cpp": "6af0d23311f3647b7187913134d52fe4b3746e35d2c99965254a62208a228631",
+      "src/input.cpp": "15961193378fc5092ac528af13c8ab10ed0ec888ddd5ab73e6c82841b8c667c7",
+      "src/inputmethod.cpp": "ceebaa05b4005e5552c199aa135d7548ad28f088b32f49f37e56fef5a3835136",
+      "src/inputmethod.h": "9ca4ce1ce94aa9185fd713ca0f589515cafa61ed9241d4794375a3043a042e67",
+      "src/plugins/eis/CMakeLists.txt": "a0d88df1aa2e335fade56d5ec28efcda0bd73aea1a89952a227653b7eb78b4b6",
+      "src/plugins/eis/config-eis.h.in": "f87c2879a6aefaa796f354ad0ac07875cebc3ca15b5332d2f5d85f4d1d749b9b",
+      "src/plugins/eis/eisbackend.cpp": "367d9593ac8e05977a26788169be28967a2ef5779707843176c593eb00f247ab",
+      "src/plugins/eis/eisbackend.h": "69e871136a5443defca0c008a7125e7162328736d92c7edbd0092aecd785686f",
+      "src/plugins/eis/eiscontext.cpp": "14d73b34182ff180eea89706f9cb12dc1ffeecf9977ee8099fb174a4283b6d2f",
+      "src/plugins/eis/eisdevice.cpp": "67f55dcb68c6eabf7866346ef3a83309133e7b9af56b01a46a6f1c160ab36a03",
+      "src/plugins/eis/eisdevice.h": "c4391f9166b7704b63b21e32ee425fe73b0c025b3e9a3c579c798b672ca4055f",
+      "src/plugins/eis/xwaylandeiscontext.cpp": "3750ae9872653410deb0603b54968961a47ae7d856eced063d81c32162dff62d",
+      "src/window.cpp": "b52df7eeba83810ed7cd96b274d9b5d43cc55228413edfc036fabb665700a979",
+      "src/window.h": "bb36b1eb1d20c105346bc7c6d86e66c85d5705cb528991336fbb1bb5386ed4aa",
+      "src/workspace.cpp": "c508d0a5fc0032db5b1b72bfce0164ac3a235baa04e499eb3a940af2276128a9",
+      "src/x11window.cpp": "53c8cc7035d5a3928fdfbb827349c01c2fe6df1070d7f79c14fcefb2d27714d8",
+      "src/x11window.h": "d95c488ed3ce230020a1f44a86b0f2fd3bdc66d717373cd31404dec7a5ad7c53",
+      "src/xkb.h": "eb3a8cbe535519c164a9350ce0beeef81b7b514b6b734e184d8fbea2202f30a3"
+    }
+  },
+  "xwayland": {
+    "directory": "xwayland-24.1.14",
+    "archive": "xwayland-24.1.14.tar.xz",
+    "patches": [
+      "0001-Revert-xwayland-Restrict-allow-commit-to-the-window-.patch",
+      "0002-Revert-xwayland-present-Check-allow_commits-in-xwl_p.patch",
+      "0003-LibEi-keysyms.patch",
+      "xwayland-native-unicode.patch"
+    ],
+    "sha256": {
+      "xwayland-24.1.14.tar.xz": "4eb6b98d678299a4b96138d886345b294130695760345ef84596225a8224078a",
+      "0001-Revert-xwayland-Restrict-allow-commit-to-the-window-.patch": "efe0a9eac144b2c2c84261eb1f4551d03bae86d8425b50e8ed649f82257ba66d",
+      "0002-Revert-xwayland-present-Check-allow_commits-in-xwl_p.patch": "586c8297833a8bd389042d0748704e4482c539a39e9c95b0ad389c7ba28a8702",
+      "0003-LibEi-keysyms.patch": "7d3f24dc32a503b593304f32f5df9e4b2a829b0d57681bedd429f42dc04f5712",
+      "xwayland-native-unicode.patch": "2e53debe8d41ece1e273158874fde424f1a52b9ba039b021463572584cce1c2f"
+    },
+    "patched_files": {
+      "hw/xwayland/xwayland-present.c": "f3a3ae3ef40ecc771b7fcad4b6e0a6acc5864c53ba228dcd438a636fcfc42a2f",
+      "hw/xwayland/xwayland-screen.c": "ec00a41933c4263b42b031d3a3fe164c6399c76ae6d8b0de76cc5b350693fe78",
+      "hw/xwayland/xwayland-xtest.c": "07c1407ba84bd3b04d89416b7df98f25eadcf7584f6b0a560dd112c7942b4696",
+      "include/inputstr.h": "6df2bc6f90c8b58b23e6ddb9833879e3d01cf7450240f46b739e7a8297fbc438",
+      "xkb/xkbUtils.c": "d6ab4dc601cae43b87b8025cde3f39f6db398fbef5e8ce5d9cf0b3fc6dc592b0"
+    }
+  }
+}
